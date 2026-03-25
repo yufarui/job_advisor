@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Any, cast
 
 from motor.motor_asyncio import AsyncIOMotorCollection
@@ -11,8 +11,13 @@ from config.db.mongo_backend import MongoDb
 from config.log_config import log_io
 from constants.biz_constant import BizConstant
 from core.id_utils import generate_short_id
-from core.time_utils import now_shanghai
 from entity.mongo.task import Task
+
+SHANGHAI_TZ = timezone(timedelta(hours=8))
+
+
+def now_shanghai() -> datetime:
+    return datetime.now(SHANGHAI_TZ)
 
 
 class TaskStorage:

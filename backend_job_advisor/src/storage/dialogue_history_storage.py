@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 import logging
 from typing import Any, cast
 
@@ -11,10 +11,15 @@ from config.db.mongo_backend import MongoDb
 from config.db.redis_backend import RedisDb
 from config.log_config import log_io
 from constants.biz_constant import BizConstant
-from core.time_utils import now_shanghai
 from entity.redis.dialogue_message import DialogueMessage
 
 logger = logging.getLogger(__name__)
+
+SHANGHAI_TZ = timezone(timedelta(hours=8))
+
+
+def now_shanghai() -> datetime:
+    return datetime.now(SHANGHAI_TZ)
 
 
 class DialogueHistoryStorage:

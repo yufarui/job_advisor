@@ -8,7 +8,7 @@
 from __future__ import annotations
 
 import secrets
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from fastapi import Depends
 
@@ -17,7 +17,6 @@ from config.log_config import log_io
 from constants.biz_constant import BizConstant
 from constants.job_source_enum import JobSourceEnum
 from constants.user_job_status_enum import UserJobStatusEnum
-from core.time_utils import now_shanghai
 from entity.mongo.job import Job
 from entity.mongo.user_job import UserJob
 from entity.mongo.user_job_query_filter import UserJobQueryFilter
@@ -26,6 +25,12 @@ from entity.view.user_job_card import UserJobCard
 from entity.view.user_job_update_request import UserJobUpdateRequest
 from entity.view.user_job_view import UserJobView
 from storage import JobStorage, MongoDb
+
+SHANGHAI_TZ = timezone(timedelta(hours=8))
+
+
+def now_shanghai() -> datetime:
+    return datetime.now(SHANGHAI_TZ)
 
 
 def _format_biz_id_candidate(letter: str) -> str:

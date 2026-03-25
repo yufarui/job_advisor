@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import uuid
 from collections.abc import Awaitable, Callable
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
 from entity.mongo.task import Task
 from entity.redis.dialogue_message import DialogueMessage
@@ -13,11 +13,16 @@ from entity.redis.dialogue_message import DialogueMessage
 from service.llm_service import LlmService
 
 from constants.agent_constants import AgentConstants
-from core.time_utils import now_shanghai
 from agent.ports import TaskLifecyclePort
 from agent.state import AdvisorTurnState
 
 logger = logging.getLogger(__name__)
+
+SHANGHAI_TZ = timezone(timedelta(hours=8))
+
+
+def now_shanghai() -> datetime:
+    return datetime.now(SHANGHAI_TZ)
 
 LoadDialogueFn = Callable[[str, str], Awaitable[list[DialogueMessage]]]
 

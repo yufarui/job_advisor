@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timedelta, timezone
 from typing import Any, cast
 
 from motor.motor_asyncio import AsyncIOMotorCollection
@@ -12,8 +13,13 @@ from constants.biz_constant import BizConstant
 from constants.sub_task_status_enum import SubTaskStatusEnum
 from constants.sub_task_type_enum import SubTaskTypeEnum
 from core.id_utils import generate_short_id
-from core.time_utils import now_shanghai
 from entity.mongo.sub_task import SubTask
+
+SHANGHAI_TZ = timezone(timedelta(hours=8))
+
+
+def now_shanghai() -> datetime:
+    return datetime.now(SHANGHAI_TZ)
 
 
 class SubTaskStorage:

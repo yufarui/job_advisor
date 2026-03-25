@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import logging
 from collections.abc import AsyncIterator
+from datetime import datetime, timedelta, timezone
 from typing import Any
 from typing import Annotated
 
@@ -21,7 +22,6 @@ from config.api.request_factory import (
 from config.notify_sse_hub import NotifySseHub
 from agent.state import AdvisorTurnState
 from core.context import AdvisorPipelineDeps
-from core.time_utils import today_range_shanghai
 from core.pipeline import AdvisorPipeline
 from service.fact_service import FactService, get_fact_service
 from service.llm_service import LlmService, get_llm_service
@@ -35,6 +35,20 @@ from storage import (
     ToolResultCacheStorage,
 )
 from storage.dialogue_history_storage import DialogueHistoryStorage
+
+SHANGHAI_TZ = timezone(timedelta(hours=8))
+
+
+def now_shanghai() -> datetime:
+    return datetime.now(SHANGHAI_TZ)
+
+
+def today_range_shanghai() -> tuple[datetime, datetime]:
+    """Return [start, end) datetime range for today's Shanghai date."""
+    now = now_shanghai()
+    start = datetime(now.year, now.month, now.day, tzinfo=SHANGHAI_TZ)
+    end = start + timedelta(days=1)
+    return start, end
 
 logger = logging.getLogger(__name__)
 

@@ -7,7 +7,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Any, cast
 
 from motor.motor_asyncio import AsyncIOMotorCollection
@@ -15,12 +15,17 @@ from motor.motor_asyncio import AsyncIOMotorCollection
 from config.log_config import log_io
 from config.db.mongo_backend import MongoDb
 from constants.biz_constant import BizConstant
-from core.time_utils import now_shanghai
 from entity.mongo.job import Job
 from entity.mongo.user_job import UserJob
 from entity.mongo.user_job_query_filter import UserJobQueryFilter
 from entity.view.job_update_request import JobUpdateRequest
 from entity.view.user_job_update_request import UserJobUpdateRequest
+
+SHANGHAI_TZ = timezone(timedelta(hours=8))
+
+
+def now_shanghai() -> datetime:
+    return datetime.now(SHANGHAI_TZ)
 
 
 class JobStorage:

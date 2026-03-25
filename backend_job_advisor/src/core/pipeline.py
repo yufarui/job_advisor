@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime, timedelta, timezone
 from typing import TypedDict
 
 from constants.agent_constants import AgentConstants
-from core.time_utils import now_shanghai
 from agent.executor import run_executor
 from agent.plan import run_plan
 from agent.review import run_review
@@ -18,6 +18,12 @@ from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import END, START, StateGraph
 
 logger = logging.getLogger(__name__)
+
+SHANGHAI_TZ = timezone(timedelta(hours=8))
+
+
+def now_shanghai() -> datetime:
+    return datetime.now(SHANGHAI_TZ)
 
 
 class _PipelineGraphState(TypedDict):

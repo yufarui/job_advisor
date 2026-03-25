@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from motor.motor_asyncio import AsyncIOMotorCollection
@@ -9,9 +10,14 @@ from motor.motor_asyncio import AsyncIOMotorCollection
 from config.db.mongo_backend import MongoDb
 from config.log_config import log_io
 from constants.biz_constant import BizConstant
-from core.time_utils import now_shanghai
 from entity.mongo.user_resume import UserResume
 from entity.view.resume_update_request import ResumeUpdateRequest
+
+SHANGHAI_TZ = timezone(timedelta(hours=8))
+
+
+def now_shanghai() -> datetime:
+    return datetime.now(SHANGHAI_TZ)
 
 
 class ResumeStorage:

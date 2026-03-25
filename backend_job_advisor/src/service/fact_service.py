@@ -8,7 +8,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from fastapi import Depends
 
@@ -21,13 +21,18 @@ from entity.view.fact_api_models import (
 )
 from entity.view.user_fact_update_request import UserFactUpdateRequest
 from entity.view.user_fact_view import UserFactView
-from core.time_utils import now_shanghai
 from storage import ChromaDb, ElasticsearchDb
 from service.llm_service import LlmService, get_llm_service
 from storage.fact_es import FactEsStorage
 from storage.fact_vector import FactVectorStorage
 
 logger = logging.getLogger(__name__)
+
+SHANGHAI_TZ = timezone(timedelta(hours=8))
+
+
+def now_shanghai() -> datetime:
+    return datetime.now(SHANGHAI_TZ)
 
 
 # --- 领域小工具（无 I/O）---
