@@ -26,3 +26,4 @@ front_job_advisor/dist/
 Thumbs.db
 
 .log
+.cursor
