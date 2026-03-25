@@ -1,0 +1,118 @@
+# 核心开发栈（体积相对小，优先保证能拉起）
+# 启动：docker compose up -d
+# 勿加 --build（本文件无 build 上下文，加 --build 无意义且易误导）
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: ja-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - ja_mongodb_data:/data/db
+      # 首次初始化数据卷时执行 db/mongodb 下的脚本（仅空数据目录时运行一次）
+      - ./db/mongodb/init_collections.js:/docker-entrypoint-initdb.d/init_collections.js:ro
+    environment:
+      MONGO_INITDB_DATABASE: job_advisor
+
+  mongo-express:
+    image: mongo-express:1
+    container_name: ja-mongo-express
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongodb:27017/
+      ME_CONFIG_BASICAUTH: "false"
+    depends_on:
+      - mongodb
+
+  redis:
+    image: redis:7-alpine
+    container_name: ja-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - ja_redis_data:/data
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: ja-redis-commander
+    restart: unless-stopped
+    ports:
+      - "8082:8081"
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    depends_on:
+      - redis
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.3
+    container_name: ja-elasticsearch
+    restart: unless-stopped
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    volumes:
+      - ja_es_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -sf 'http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=5s' || exit 1",
+        ]
+      interval: 5s
+      timeout: 10s
+      retries: 30
+      start_period: 40s
+
+  elasticsearch-init:
+    image: curlimages/curl:8.11.1
+    container_name: ja-elasticsearch-init
+    restart: "no"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    volumes:
+      - ./db/elasticsearch/job_advisor_facts.json:/init/job_advisor_facts.json:ro
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -e
+        code=$$(curl -s -o /tmp/es_put_body -w "%{http_code}" -X PUT "http://elasticsearch:9200/job_advisor_facts" -H "Content-Type: application/json" --data-binary "@/init/job_advisor_facts.json")
+        echo "PUT job_advisor_facts -> HTTP $$code"
+        case "$$code" in 200|201|400) ;; *) cat /tmp/es_put_body; exit 1;; esac
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.15.3
+    container_name: ja-kibana
+    restart: unless-stopped
+    ports:
+      - "5601:5601"
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  chroma:
+    image: chromadb/chroma:latest
+    container_name: ja-chroma
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ja_chroma_data:/chroma/chroma
+    environment:
+      ANONYMIZED_TELEMETRY: "false"
+
+volumes:
+  ja_mongodb_data:
+  ja_redis_data:
+  ja_es_data:
+  ja_chroma_data:
