@@ -1,0 +1,15 @@
+### Elasticsearch 索引创建（REST Client / VS Code REST Client 插件）
+### 变量
+@host = http://localhost:9200
+
+### 1. 求职事实（与 Chroma 向量侧 fact_id 对齐）
+PUT {{host}}/job_advisor_facts
+Content-Type: application/json
+
+< ./job_advisor_facts.json
+
+### 2. 职位全文检索（可选，与 MongoDB jobs 同步写入）
+PUT {{host}}/job_advisor_jobs
+Content-Type: application/json
+
+< ./job_advisor_jobs.json

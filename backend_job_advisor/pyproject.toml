@@ -1,0 +1,39 @@
+[project]
+name = "backend-job-advisor"
+version = "0.1.0"
+description = "求职顾问后端（FastAPI + LangGraph）"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "pydantic>=2.9.0",
+    "pydantic-settings>=2.6.0",
+    "langchain>=0.3.0",
+    "langchain-openai>=0.2.0",
+    "python-dotenv>=1.0.0",
+    "langgraph>=0.2.0",
+    "motor>=3.6.0",
+    "redis>=5.2.0",
+    "httpx>=0.27.0",
+    "chromadb>=0.5.0",
+    "elasticsearch>=8.15.0,<9",
+    "aiohttp>=3.13.3",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agent", "src/api", "src/config", "src/constants", "src/core", "src/entity", "src/llm", "src/service", "src/storage", "src/tool"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.24.0",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["test"]
